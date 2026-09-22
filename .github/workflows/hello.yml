@@ -1,0 +1,40 @@
+name: CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Baixa o código do repositório
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 2. Configura o ambiente Node.js com cache para acelerar execuções futuras
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm' # se usar yarn ou pnpm, altere aqui
+
+      # 3. Instala as dependências de forma limpa e rápida
+      - name: Install dependencies
+        run: npm ci
+
+      # 4. Executa a checagem de linter / formatação (se houver script no package.json)
+      - name: Run linter
+        run: npm run lint --if-present
+
+      # 5. Roda a suíte de testes
+      - name: Run tests
+        run: npm test --if-present
+
+      # 6. Gera os arquivos finais de compilação/build
+      - name: Build project
+        run: npm run build --if-present
